@@ -1,0 +1,27 @@
+{
+    "provider": [
+        {
+            "name": "HentaiTV",
+            "url": "https://hentai.tv",
+            "endpoint": [
+                "/api/hentaitv/search/:query/:page",
+                "/api/hentaitv/random",
+                "/api/hentaitv/recent",
+                "/api/hentaitv/trending",
+                "/api/hentaitv/watch/:id",
+                "/api/hentaitv/info/:id",
+                "/api/hentaitv/genre/:genre (visit docs/genre  for more info)"
+
+            ]
+
+        },
+        {
+            "name": "HentaiCity",
+            "url": "https://hentaicity.com",
+            "endpoint": [
+                "/api/hentaicity/recent",
+                "/api/hentaicity/popular"
+            ]
+        }
+    ]
+}
