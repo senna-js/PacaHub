@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const hentaitv = require('../providers/hentai/hentaitv');
 const hentaicity = require('../providers/hentai/hentaicity');
-
+const mangakakalot = require('../providers/manga/mangakakalot/controler/mangaKakalotController');
 // Helper function to handle responses
 const handleResponse = (res, promise) => {
     promise
@@ -22,5 +22,17 @@ router.get('/hen/hentaitv/random', (req, res) => handleResponse(res, hentaitv.sc
 // HentaiCity endpoints
 router.get('/hen/hentaicity/recent', (req, res) => handleResponse(res, hentaicity.scrapeRecent()));
 router.get('/hen/hentaicity/popular', (req, res) => handleResponse(res, hentaicity.scrapePopular()));
+
+// MangaKakalot endpoints
+router.get("/manga/kakalot/read/:mangaId?/:chapterId?", mangakakalot.getMangaChapterImages);
+router.get("/manga/kakalot/details/:id", mangakakalot.getMangaDetails);
+router.get("/manga/kakalot/search/:query?/:page?", mangakakalot.getMangaSearch);
+router.get("/manga/kakalot/latest/:page?", mangakakalot.getLatestMangas);
+router.get("/manga/kakalot/popular/:page?", mangakakalot.getPopularMangas);
+router.get("/manga/kakalot/newest/:page?", mangakakalot.getNewestMangas);
+router.get("/manga/kakalot/completed/:page?", mangakakalot.getCompletedMangas);
+router.get("/manga/kakalot/popular-now", mangakakalot.getPopularNowMangas);
+router.get("/manga/kakalot/home", mangakakalot.getHomePage);
+
 
 module.exports = router; 
