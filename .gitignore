@@ -1,0 +1,25 @@
+node_modules/
+npm-debug.log
+yarn-error.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+
+# Dependency directories
+bower_components/
+
+# Logs
+logs
+*.log
+logs/*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+Thumbs.db
