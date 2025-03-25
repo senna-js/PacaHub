@@ -1,33 +1,27 @@
 require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
 const cheerio = require('cheerio');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
-const apiRoutes = require('./routes/api');
+const apiRoutes = require('../src/routes/api');
 
 app.use('/api', apiRoutes);
-app.get('/', async (req, res) => {
-  return res.json({
-    about: "Congratulations! You've found the Pacatai API. Visit /docs for more info.",
-    status: 200,
-    provider: [
-      "https://hentaicity.com",
-      "https://hentai.tv",
-    ],
-  });
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 app.get('/docs', (req, res) => {
-    const docs = require('./public/docs/docs.json');
+    const docs = require('../public/docs/docs.json');
     res.json(docs);
 });
 
 app.get('/docs/genre', (req, res) => {
-    const docs = require('./public/docs/genre.json');
+    const docs = require('../public/docs/genre.json');
     res.json(docs);
 });
 

@@ -3,7 +3,6 @@ const router = express.Router();
 const hentaitv = require('../providers/hentaitv');
 const hentaicity = require('../providers/hentaicity');
 
-
 // HentaiTV watch endpoint
 router.get('/hentaitv/watch/:id', async (req, res) => {
     try {
@@ -81,6 +80,7 @@ router.get('/hentaitv/recent', async (req, res) => {
     }
 });
 
+// HentaiTV trending endpoint
 router.get('/hentaitv/trending', async (req, res) => {
     try {
         const results = await hentaitv.scrapeTrending();
@@ -96,6 +96,7 @@ router.get('/hentaitv/trending', async (req, res) => {
     }
 });
 
+// HentaiTV random endpoint
 router.get('/hentaitv/random', async (req, res) => {
     try {
         const results = await hentaitv.scrapeRandom();
@@ -127,7 +128,6 @@ router.get('/hentaicity/recent', async (req, res) => {
     }
 });
 
-
 // HentaiCity popular endpoint
 router.get('/hentaicity/popular', async (req, res) => {
     try {
@@ -143,7 +143,5 @@ router.get('/hentaicity/popular', async (req, res) => {
         });
     }
 });
-
-
 
 module.exports = router; 
