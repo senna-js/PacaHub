@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const hentaitv = require('../providers/hentaitv');
-const hentaicity = require('../providers/hentaicity');
+const hentaitv = require('../providers/hentai/hentaitv');
+const hentaicity = require('../providers/hentai/hentaicity');
 
 // HentaiTV watch endpoint
 router.get('/hentaitv/watch/:id', async (req, res) => {
