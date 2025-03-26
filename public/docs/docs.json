@@ -42,5 +42,36 @@
                 ]
             }
         ]
+        },
+    "anime": {
+        "provider": [
+            {
+                "name": "AniDubPro",
+                "url": "https://animedub.pro",
+                "endpoint": [
+                    "/api/anime/anidubpro/list/:page"
+                ]
+            }
+        ]
+    },
+    "jav": {
+        "provider": [
+            {
+                "name": "JavGG",
+                "url": "https://javgg.net",
+                "endpoint": [
+                    "/api/jav/javgg/recent/:page",
+                    "/api/jav/javgg/featured/:page",
+                    "/api/jav/javgg/trending/:page",
+                    "/api/jav/javgg/search/:query/:page",
+                    "/api/jav/javgg/info/:id",
+                    "/api/jav/javgg/servers/:id",
+                    "/api/jav/javgg/watch/:id",
+                    "/api/jav/javgg/watch/:id/:server",
+                    "/api/jav/javgg/random/:page",
+                    "/api/jav/javgg/genre/:genre (visit docs/genre for more info)"
+                ]
+            }
+        ]
     }
 }
