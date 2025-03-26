@@ -183,39 +183,12 @@ const scrapeTrending = async () => {
 };
 
 const scrapeSearch = async (query, page = 1) => {
-    try {
-        const { data } = await axios.get(`${BASE_URL}/page/${page}/?s=${query}`);
-        const $ = cheerio.load(data);
-        const results = [];
-
-        $('.crsl-slde').each((i, el) => {
-            const title = $(el).find('a').text().trim();
-            const id = $(el).find('a').attr('href').split('/hentai/').pop().split('/').shift();
-            const image = $(el).find('img').attr('src');
-            const views = $(el).find('.opacity-50').text().trim().replace(/,/g, '');
-
-            results.push({
-                title,
-                id,
-                image,
-                views: parseInt(views, 10),
-            });
-        });
-
-        return {
-            provider: 'hentaitv',   
-            type: 'search',
-            results: results
-        };
-    } catch (error) {
-        throw new Error(`Failed to scrape HentaiTV: ${error.message}`);
-    }
-};
-
-const scrapeGenre = async (genre, page = 1) => {
-    return getCachedData(`genre-${genre}-page-${page}`, async () => { // Caching based on genre and page
+    // Ensure page is treated as an integer
+    const pageNum = parseInt(page, 10) || 1;
+    
+    return getCachedData(`search-${query}-page-${pageNum}`, async () => {
         try {
-            const { data } = await axios.get(`${BASE_URL}/page/${page}/?genre=${genre}`);
+            const { data } = await axios.get(`${BASE_URL}/page/${pageNum}/?s=${query}`);
             const $ = cheerio.load(data);
             const results = [];
 
@@ -233,16 +206,177 @@ const scrapeGenre = async (genre, page = 1) => {
                 });
             });
 
-            // Extract total pages and current page number
-            const totalPages = $('.flex[data-nav] a').length; // Count the number of pagination links
-            const currentPage = page; // Current page is passed as an argument
+            // More robust pagination detection approach
+            // First check if we have actual pagination elements
+            const hasPagination = $('.flex[data-nav]').length > 0;
+            
+            // Get the current page from the response or use the provided page number
+            let currentPage = pageNum;
+            
+            // Initialize totalPages
+            let totalPages = 1;
+            
+            // Try to extract total results count if available
+            let totalResults = 0;
+            
+            // Look for total results count text
+            $('h1, .page-heading, .header-text').each((i, el) => {
+                const text = $(el).text().trim();
+                const match = text.match(/(\d+)\s+results/i);
+                if (match && match[1]) {
+                    totalResults = parseInt(match[1], 10);
+                }
+            });
+            
+            if (hasPagination) {
+                // Try to find the last page number from pagination links
+                $('.flex[data-nav] a').each((i, el) => {
+                    const href = $(el).attr('href');
+                    if (href) {
+                        const pageMatch = href.match(/\/page\/(\d+)/);
+                        if (pageMatch && pageMatch[1]) {
+                            const pageNumber = parseInt(pageMatch[1], 10);
+                            if (pageNumber > totalPages) {
+                                totalPages = pageNumber;
+                            }
+                        }
+                    }
+                });
+                
+                // Look for active/current page indicator
+                $('.flex[data-nav] .btn-primary, .flex[data-nav] .current').each((i, el) => {
+                    const text = $(el).text().trim();
+                    if (/^\d+$/.test(text)) {
+                        currentPage = parseInt(text, 10);
+                    }
+                });
+            } else if (results.length > 0) {
+                // If we have results but no pagination, assume we're on page 1 of 1
+                totalPages = 1;
+                currentPage = 1;
+            } else {
+                // No results and no pagination, probably no content found
+                totalPages = 0;
+                currentPage = 0;
+            }
+            
+            // If we couldn't find explicit total results, estimate based on results per page
+            if (!totalResults && results.length > 0) {
+                totalResults = results.length * totalPages;
+            }
+            
+            // Determine if there's a next page
+            const hasNextPage = currentPage < totalPages;
+
+            return {
+                provider: 'hentaitv',   
+                type: 'search',
+                results: results,
+                totalPages: totalPages,
+                currentPage: currentPage,
+                hasNextPage: hasNextPage,
+                totalResults: totalResults || results.length
+            };
+        } catch (error) {
+            throw new Error(`Failed to scrape HentaiTV: ${error.message}`);
+        }
+    });
+};
+
+const scrapeGenre = async (genre, page = 1) => {
+    return getCachedData(`genre-${genre}-page-${page}`, async () => { // Caching based on genre and page
+        try {
+            // Ensure page is treated as an integer
+            const pageNum = parseInt(page, 10) || 1;
+            
+            const { data } = await axios.get(`${BASE_URL}/page/${pageNum}/?genre=${genre}`);
+            const $ = cheerio.load(data);
+            const results = [];
+
+            $('.crsl-slde').each((i, el) => {
+                const title = $(el).find('a').text().trim();
+                const id = $(el).find('a').attr('href').split('/hentai/').pop().split('/').shift();
+                const image = $(el).find('img').attr('src');
+                const views = $(el).find('.opacity-50').text().trim().replace(/,/g, '');
+
+                results.push({
+                    title,
+                    id,
+                    image,
+                    views: parseInt(views, 10),
+                });
+            });
+
+            // More robust pagination detection approach
+            // First check if we have actual pagination elements
+            const hasPagination = $('.flex[data-nav]').length > 0;
+            
+            // Get the current page from the response or use the provided page number
+            let currentPage = pageNum;
+            
+            // Initialize totalPages
+            let totalPages = 1;
+            
+            // Try to extract total results count if available
+            let totalResults = 0;
+            
+            // Look for total results count text
+            $('h1, .page-heading, .header-text').each((i, el) => {
+                const text = $(el).text().trim();
+                const match = text.match(/(\d+)\s+results/i);
+                if (match && match[1]) {
+                    totalResults = parseInt(match[1], 10);
+                }
+            });
+            
+            if (hasPagination) {
+                // Try to find the last page number from pagination links
+                $('.flex[data-nav] a').each((i, el) => {
+                    const href = $(el).attr('href');
+                    if (href) {
+                        const pageMatch = href.match(/\/page\/(\d+)/);
+                        if (pageMatch && pageMatch[1]) {
+                            const pageNumber = parseInt(pageMatch[1], 10);
+                            if (pageNumber > totalPages) {
+                                totalPages = pageNumber;
+                            }
+                        }
+                    }
+                });
+                
+                // Look for active/current page indicator
+                $('.flex[data-nav] .btn-primary, .flex[data-nav] .current').each((i, el) => {
+                    const text = $(el).text().trim();
+                    if (/^\d+$/.test(text)) {
+                        currentPage = parseInt(text, 10);
+                    }
+                });
+            } else if (results.length > 0) {
+                // If we have results but no pagination, assume we're on page 1 of 1
+                totalPages = 1;
+                currentPage = 1;
+            } else {
+                // No results and no pagination, probably no content found
+                totalPages = 0;
+                currentPage = 0;
+            }
+            
+            // If we couldn't find explicit total results, estimate based on results per page
+            if (!totalResults && results.length > 0) {
+                totalResults = results.length * totalPages;
+            }
+            
+            // Determine if there's a next page
+            const hasNextPage = currentPage < totalPages;
 
             return {
                 provider: 'hentaitv',   
                 type: 'genre',
                 results: results,
                 totalPages: totalPages,
-                currentPage: currentPage
+                currentPage: currentPage,
+                hasNextPage: hasNextPage,
+                totalResults: totalResults || results.length
             };
         } catch (error) {
             throw new Error(`Failed to scrape HentaiTV: ${error.message}`);
