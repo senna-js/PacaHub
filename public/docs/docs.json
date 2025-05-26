@@ -18,7 +18,7 @@
             }
         ]
     },
-    "hentai": {
+"hentai": {
         "provider": [
             {
                 "name": "HentaiTV",
@@ -43,7 +43,7 @@
             }
         ]
         },
-        "jav": {
+"jav": {
             "provider": [
                 {
                     "name": "JavGG",
